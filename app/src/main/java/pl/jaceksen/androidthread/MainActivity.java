@@ -1,6 +1,8 @@
 package pl.jaceksen.androidthread;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.SeekBar;
@@ -13,6 +15,7 @@ public class MainActivity extends AppCompatActivity {
     TextView tvCounter;
     TextView tvWatek;
     int liczbaWatkow = 0;
+    MyHandler mh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
         sb1 = (SeekBar) findViewById(R.id.seekBar);
         tvCounter = (TextView) findViewById(R.id.textView);
         tvWatek = (TextView) findViewById(R.id.tvWatek);
+        mh = new MyHandler();
         sb1.setMax(maxCounter);
     }
 
@@ -64,13 +68,19 @@ public class MainActivity extends AppCompatActivity {
                 if(counterUp<maxCounter){
 
                     //dostaję sie do UI
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            sb1.setProgress(counterUp);
-                            tvCounter.setText("licznik: " + counterUp);
-                        }
-                    });
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+////                            sb1.setProgress(counterUp);
+////                            tvCounter.setText("licznik: " + counterUp);
+//                        }
+//                    });
+
+                    Message msg = mh.obtainMessage();
+                    Bundle bu = new Bundle();
+                    bu.putInt("counter",counterUp);
+                    msg.setData(bu);
+                    mh.sendMessage(msg);
 
                     counterUp++;
 
@@ -85,6 +95,14 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
+    }
+
+    class MyHandler extends Handler {
+        public void handleMessage(Message msg) {
+            int count = msg.getData().getInt("counter");
+            sb1.setProgress(count);
+            tvCounter.setText("licznik: " + count);
+        }
     }
 
 }
